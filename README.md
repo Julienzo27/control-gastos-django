@@ -2,7 +2,7 @@
 
 
 
-App web hecha con Django para registrar gastos y ver cuánto se gasta por categoría.
+App web hecha con Django para registrar gastos y ver cuánto se gasta por categoría y por mes.
 
 
 
@@ -10,13 +10,15 @@ App web hecha con Django para registrar gastos y ver cuánto se gasta por catego
 
 
 
-\- Registra gastos con descripción, monto, fecha y categoría.
+\- Alta, edición y eliminación de gastos (con pantalla de confirmación antes de borrar).
 
-\- Muestra la lista de gastos ordenada por fecha (del más nuevo al más viejo).
+\- Alta de categorías desde la pantalla de inicio.
 
-\- Calcula el total general y el total por categoría.
+\- Filtros por mes y por categoría; el total y los totales por categoría se recalculan según el filtro.
 
-\- Panel de administración de Django para gestionar categorías y gastos.
+\- Aviso cuando se intenta cargar un gasto repetido (misma descripción, monto y categoría en el mismo mes) o una categoría que ya existe. El gasto repetido se puede cargar igual si se confirma.
+
+\- Panel de administración de Django.
 
 
 
@@ -24,7 +26,7 @@ App web hecha con Django para registrar gastos y ver cuánto se gasta por catego
 
 
 
-Python, Django 6.1, SQLite, HTML.
+Python, Django 6.1, SQLite, HTML y CSS.
 
 
 
@@ -50,7 +52,7 @@ Requiere Python 3.12 o superior.
 
 
 
-Después abrí http://127.0.0.1:8000/admin/ para crear categorías y entrá a http://127.0.0.1:8000/ para ver la lista y agregar gastos.
+Después abrí http://127.0.0.1:8000/admin/ para crear categorías (o usá el botón "+ Nueva categoría" de la pantalla de inicio) y entrá a http://127.0.0.1:8000/ para cargar y consultar gastos.
 
 
 
@@ -66,11 +68,9 @@ Después abrí http://127.0.0.1:8000/admin/ para crear categorías y entrá a ht
 
 
 
-\- Filtrar gastos por mes y por categoría.
-
-\- Editar y borrar gastos desde la página.
-
 \- Gráfico de gastos por categoría.
 
-\- Agregar usuarios para que cada persona vea solo sus gastos.
+\- Exportar los gastos a CSV.
+
+\- Usuarios, para que cada persona vea solo sus gastos.
 
