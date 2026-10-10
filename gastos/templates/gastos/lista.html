@@ -1,34 +1,67 @@
 <!doctype html>
+{% load static %}
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Control de gastos</title>
+  <link rel="stylesheet" href="{% static 'gastos/style.css' %}">
 </head>
 <body>
-  <h1>Control de gastos</h1>
-  <p><a href="{% url 'agregar_gasto' %}">+ Agregar gasto</a></p>
-  <h2>Total: ${{ total }}</h2>
+  <main class="contenedor">
+    <header class="encabezado">
+      <h1>Control de gastos</h1>
+      <div class="acciones">
+        <a class="boton" href="{% url 'agregar_gasto' %}">+ Agregar gasto</a>
+        <a class="boton boton-claro" href="{% url 'agregar_categoria' %}">+ Nueva categoría</a>
+      </div>
+    </header>
 
-  <h2>Por categoría</h2>
-  <ul>
-    {% for item in totales_por_categoria %}
-      <li>{{ item.categoria__nombre }}: ${{ item.total }}</li>
-    {% endfor %}
-  </ul>
+    <section class="total-card">
+      <span class="etiqueta">Total gastado</span>
+      <span class="total-monto">${{ total }}</span>
+    </section>
 
-  <h2>Gastos</h2>
-  <table border="1" cellpadding="6">
-    <tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th></tr>
-    {% for gasto in gastos %}
-      <tr>
-        <td>{{ gasto.fecha }}</td>
-        <td>{{ gasto.descripcion }}</td>
-        <td>{{ gasto.categoria }}</td>
-        <td>${{ gasto.monto }}</td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="4">Todavía no hay gastos.</td></tr>
-    {% endfor %}
-  </table>
+    <h2>Por categoría</h2>
+    <ul class="categorias">
+      {% for item in totales_por_categoria %}
+        <li class="categoria-card">
+          <span class="categoria-nombre">{{ item.categoria__nombre }}</span>
+          <span class="categoria-monto">${{ item.total }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <h2>Gastos</h2>
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th class="num">Monto</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for gasto in gastos %}
+            <tr>
+              <td>{{ gasto.fecha }}</td>
+              <td>{{ gasto.descripcion }}</td>
+              <td>{{ gasto.categoria }}</td>
+              <td class="num">${{ gasto.monto }}</td>
+              <td class="acciones-fila">
+                <a href="{% url 'editar_gasto' gasto.pk %}">Editar</a>
+                <a class="eliminar" href="{% url 'eliminar_gasto' gasto.pk %}">Eliminar</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5" class="vacio">Todavía no hay gastos.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </main>
 </body>
 </html>

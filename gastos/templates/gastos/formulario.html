@@ -1,16 +1,21 @@
 <!doctype html>
+{% load static %}
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Agregar gasto</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ titulo|default:"Agregar gasto" }}</title>
+  <link rel="stylesheet" href="{% static 'gastos/style.css' %}">
 </head>
 <body>
-  <h1>Agregar gasto</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Guardar</button>
-  </form>
-  <p><a href="{% url 'lista_gastos' %}">Volver a la lista</a></p>
+  <main class="contenedor contenedor-chico">
+    <h1>{{ titulo|default:"Agregar gasto" }}</h1>
+    <form method="post" class="tarjeta">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="boton" type="submit">Guardar</button>
+    </form>
+    <p><a class="volver" href="{% url 'lista_gastos' %}">← Volver a la lista</a></p>
+  </main>
 </body>
 </html>

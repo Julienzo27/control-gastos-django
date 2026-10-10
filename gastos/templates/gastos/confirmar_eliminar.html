@@ -1,0 +1,27 @@
+<!doctype html>
+{% load static %}
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Eliminar gasto</title>
+  <link rel="stylesheet" href="{% static 'gastos/style.css' %}">
+</head>
+<body>
+  <main class="contenedor contenedor-chico">
+    <h1>Eliminar gasto</h1>
+    <div class="tarjeta">
+      <div class="detalle">
+        <strong>{{ gasto.descripcion }}</strong><br>
+        ${{ gasto.monto }} · {{ gasto.fecha }} · {{ gasto.categoria }}
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <p>¿Seguro que querés eliminar este gasto? Esta acción no se puede deshacer.</p>
+        <button class="boton boton-peligro" type="submit">Sí, eliminar</button>
+        <a class="boton boton-claro" href="{% url 'lista_gastos' %}">Cancelar</a>
+      </form>
+    </div>
+  </main>
+</body>
+</html>

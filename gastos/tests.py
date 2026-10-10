@@ -76,3 +76,102 @@ class VistasTests(TestCase):
         )
         self.assertEqual(respuesta.status_code, 200)
         self.assertEqual(Gasto.objects.count(), 0)
+
+
+
+class DuplicadosTests(TestCase):
+    def setUp(self):
+        self.casa = Categoria.objects.create(nombre="Casa")
+        Gasto.objects.create(
+            descripcion="Metrogas",
+            monto=Decimal("5000"),
+            fecha=date(2026, 10, 3),
+            categoria=self.casa,
+        )
+
+    def datos(self, **cambios):
+        datos = {
+            "descripcion": "Metrogas",
+            "monto": "5000",
+            "fecha": "2026-10-20",
+            "categoria": self.casa.id,
+        }
+        datos.update(cambios)
+        return datos
+
+    def test_gasto_duplicado_en_el_mismo_mes_se_advierte(self):
+        respuesta = self.client.post(reverse("agregar_gasto"), self.datos())
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "ya existe un gasto")
+        self.assertEqual(Gasto.objects.count(), 1)
+
+    def test_gasto_duplicado_se_carga_si_se_confirma(self):
+        self.client.post(
+            reverse("agregar_gasto"), self.datos(confirmar_duplicado="on")
+        )
+        self.assertEqual(Gasto.objects.count(), 2)
+
+    def test_mismo_gasto_en_otro_mes_no_es_duplicado(self):
+        self.client.post(reverse("agregar_gasto"), self.datos(fecha="2026-11-03"))
+        self.assertEqual(Gasto.objects.count(), 2)
+
+    def test_categoria_nueva_se_crea(self):
+        respuesta = self.client.post(reverse("agregar_categoria"), {"nombre": "Salud"})
+        self.assertRedirects(respuesta, reverse("agregar_gasto"))
+        self.assertTrue(Categoria.objects.filter(nombre="Salud").exists())
+
+    def test_categoria_repetida_se_advierte_sin_importar_mayusculas(self):
+        respuesta = self.client.post(reverse("agregar_categoria"), {"nombre": "casa"})
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "ya existe")
+        self.assertEqual(Categoria.objects.count(), 1)
+
+
+class EditarEliminarTests(TestCase):
+    def setUp(self):
+        self.casa = Categoria.objects.create(nombre="Casa")
+        self.gasto = Gasto.objects.create(
+            descripcion="Luz",
+            monto=Decimal("100"),
+            fecha=date(2026, 10, 1),
+            categoria=self.casa,
+        )
+
+    def datos(self, **cambios):
+        datos = {
+            "descripcion": "Luz",
+            "monto": "100",
+            "fecha": "2026-10-01",
+            "categoria": self.casa.id,
+        }
+        datos.update(cambios)
+        return datos
+
+    def test_editar_gasto(self):
+        url = reverse("editar_gasto", args=[self.gasto.pk])
+        respuesta = self.client.post(url, self.datos(descripcion="Luz Edesur", monto="150"))
+        self.assertRedirects(respuesta, reverse("lista_gastos"))
+        self.gasto.refresh_from_db()
+        self.assertEqual(self.gasto.descripcion, "Luz Edesur")
+        self.assertEqual(self.gasto.monto, Decimal("150"))
+
+    def test_editar_sin_cambios_no_se_cuenta_como_duplicado_de_si_mismo(self):
+        url = reverse("editar_gasto", args=[self.gasto.pk])
+        respuesta = self.client.post(url, self.datos())
+        self.assertRedirects(respuesta, reverse("lista_gastos"))
+        self.assertEqual(Gasto.objects.count(), 1)
+
+    def test_eliminar_pide_confirmacion_y_no_borra_con_get(self):
+        respuesta = self.client.get(reverse("eliminar_gasto", args=[self.gasto.pk]))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "Luz")
+        self.assertEqual(Gasto.objects.count(), 1)
+
+    def test_eliminar_gasto(self):
+        respuesta = self.client.post(reverse("eliminar_gasto", args=[self.gasto.pk]))
+        self.assertRedirects(respuesta, reverse("lista_gastos"))
+        self.assertEqual(Gasto.objects.count(), 0)
+
+    def test_editar_gasto_inexistente_da_404(self):
+        respuesta = self.client.get(reverse("editar_gasto", args=[9999]))
+        self.assertEqual(respuesta.status_code, 404)

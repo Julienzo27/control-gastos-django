@@ -1,7 +1,7 @@
 from django.db.models import Sum
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import GastoForm
+from .forms import CategoriaForm, GastoForm
 from .models import Gasto
 
 
@@ -29,3 +29,43 @@ def agregar_gasto(request):
     else:
         form = GastoForm()
     return render(request, "gastos/formulario.html", {"form": form})
+
+
+
+def agregar_categoria(request):
+    if request.method == "POST":
+        form = CategoriaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("agregar_gasto")
+    else:
+        form = CategoriaForm()
+    return render(
+        request,
+        "gastos/formulario.html",
+        {"form": form, "titulo": "Nueva categoría"},
+    )
+
+
+def editar_gasto(request, pk):
+    gasto = get_object_or_404(Gasto, pk=pk)
+    if request.method == "POST":
+        form = GastoForm(request.POST, instance=gasto)
+        if form.is_valid():
+            form.save()
+            return redirect("lista_gastos")
+    else:
+        form = GastoForm(instance=gasto)
+    return render(
+        request,
+        "gastos/formulario.html",
+        {"form": form, "titulo": "Editar gasto"},
+    )
+
+
+def eliminar_gasto(request, pk):
+    gasto = get_object_or_404(Gasto, pk=pk)
+    if request.method == "POST":
+        gasto.delete()
+        return redirect("lista_gastos")
+    return render(request, "gastos/confirmar_eliminar.html", {"gasto": gasto})
