@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Control de gastos</title>
+</head>
+<body>
+  <h1>Control de gastos</h1>
+  <p><a href="{% url 'agregar_gasto' %}">+ Agregar gasto</a></p>
+  <h2>Total: ${{ total }}</h2>
+
+  <h2>Por categoría</h2>
+  <ul>
+    {% for item in totales_por_categoria %}
+      <li>{{ item.categoria__nombre }}: ${{ item.total }}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Gastos</h2>
+  <table border="1" cellpadding="6">
+    <tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th></tr>
+    {% for gasto in gastos %}
+      <tr>
+        <td>{{ gasto.fecha }}</td>
+        <td>{{ gasto.descripcion }}</td>
+        <td>{{ gasto.categoria }}</td>
+        <td>${{ gasto.monto }}</td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">Todavía no hay gastos.</td></tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Agregar gasto</title>
+</head>
+<body>
+  <h1>Agregar gasto</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Guardar</button>
+  </form>
+  <p><a href="{% url 'lista_gastos' %}">Volver a la lista</a></p>
+</body>
+</html>
