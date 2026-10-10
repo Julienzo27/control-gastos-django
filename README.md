@@ -6,6 +6,10 @@ App web hecha con Django para registrar gastos y ver cuánto se gasta por catego
 
 
 
+!\[Pantalla principal de la app](docs/captura.png)
+
+
+
 \## Qué hace
 
 
