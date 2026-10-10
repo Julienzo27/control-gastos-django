@@ -17,8 +17,27 @@
       </div>
     </header>
 
+    <form method="get" class="filtros">
+      <select name="mes" onchange="this.form.submit()">
+        <option value="">Todos los meses</option>
+        {% for m in meses %}
+          <option value="{{ m.valor }}" {% if m.valor == mes_sel %}selected{% endif %}>{{ m.texto }}</option>
+        {% endfor %}
+      </select>
+      <select name="categoria" onchange="this.form.submit()">
+        <option value="">Todas las categorías</option>
+        {% for c in categorias %}
+          <option value="{{ c.id }}" {% if c.id|stringformat:"s" == categoria_sel %}selected{% endif %}>{{ c.nombre }}</option>
+        {% endfor %}
+      </select>
+      
+      {% if filtrando %}
+        <a class="boton boton-claro" href="{% url 'lista_gastos' %}">Limpiar filtros</a>
+      {% endif %}
+    </form>
+
     <section class="total-card">
-      <span class="etiqueta">Total gastado</span>
+      <span class="etiqueta">Total gastado{% if filtrando %} (según el filtro){% endif %}</span>
       <span class="total-monto">${{ total }}</span>
     </section>
 
@@ -57,7 +76,11 @@
               </td>
             </tr>
           {% empty %}
-            <tr><td colspan="5" class="vacio">Todavía no hay gastos.</td></tr>
+            <tr>
+              <td colspan="5" class="vacio">
+                {% if filtrando %}No hay gastos con ese filtro.{% else %}Todavía no hay gastos.{% endif %}
+              </td>
+            </tr>
           {% endfor %}
         </tbody>
       </table>

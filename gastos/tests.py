@@ -175,3 +175,48 @@ class EditarEliminarTests(TestCase):
     def test_editar_gasto_inexistente_da_404(self):
         respuesta = self.client.get(reverse("editar_gasto", args=[9999]))
         self.assertEqual(respuesta.status_code, 404)
+
+
+class FiltrosTests(TestCase):
+    def setUp(self):
+        self.casa = Categoria.objects.create(nombre="Casa")
+        self.ringo = Categoria.objects.create(nombre="Ringo")
+        Gasto.objects.create(descripcion="Alquiler", monto=Decimal("1000"), fecha=date(2026, 9, 5), categoria=self.casa)
+        Gasto.objects.create(descripcion="Luz", monto=Decimal("200"), fecha=date(2026, 10, 5), categoria=self.casa)
+        Gasto.objects.create(descripcion="Veterinario", monto=Decimal("300"), fecha=date(2026, 10, 8), categoria=self.ringo)
+
+    def test_sin_filtros_muestra_todo(self):
+        respuesta = self.client.get(reverse("lista_gastos"))
+        self.assertContains(respuesta, "Alquiler")
+        self.assertContains(respuesta, "Luz")
+        self.assertContains(respuesta, "Veterinario")
+
+    def test_filtrar_por_mes(self):
+        respuesta = self.client.get(reverse("lista_gastos"), {"mes": "2026-10"})
+        self.assertContains(respuesta, "Luz")
+        self.assertContains(respuesta, "Veterinario")
+        self.assertNotContains(respuesta, "Alquiler")
+
+    def test_filtrar_por_categoria(self):
+        respuesta = self.client.get(reverse("lista_gastos"), {"categoria": self.ringo.id})
+        self.assertContains(respuesta, "Veterinario")
+        self.assertNotContains(respuesta, "Luz")
+
+    def test_filtrar_por_mes_y_categoria(self):
+        respuesta = self.client.get(
+            reverse("lista_gastos"), {"mes": "2026-10", "categoria": self.casa.id}
+        )
+        self.assertContains(respuesta, "Luz")
+        self.assertNotContains(respuesta, "Veterinario")
+        self.assertNotContains(respuesta, "Alquiler")
+
+    def test_el_total_respeta_el_filtro(self):
+        respuesta = self.client.get(reverse("lista_gastos"), {"mes": "2026-10"})
+        self.assertEqual(respuesta.context["total"], Decimal("500"))
+
+    def test_filtros_invalidos_se_ignoran(self):
+        respuesta = self.client.get(
+            reverse("lista_gastos"), {"mes": "abc", "categoria": "x"}
+        )
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, "Alquiler")
